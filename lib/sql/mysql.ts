@@ -6,7 +6,7 @@ import mysql, { Pool, PoolOptions } from 'mysql2/promise';
 const poolOptions: PoolOptions = {
     host: "localhost",
     user: "root",
-    password: "150114",
+    password: "root",
     database: "task_system",
     port: 3306,
     waitForConnections: true,
