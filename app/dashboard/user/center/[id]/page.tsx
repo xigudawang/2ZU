@@ -1,7 +1,7 @@
 'use client'
-import {useParams} from "next/navigation";
-import {getUserDetail} from "@/app/dashboard/user/center/[id]/user-center";
-import {useEffect, useState} from "react";
+import { useParams } from "next/navigation";
+import { getUserDetail } from "@/app/dashboard/user/center/[id]/user-center";
+import { useEffect, useState } from "react";
 
 interface User {
     account: string,
@@ -16,14 +16,14 @@ interface User {
 }
 
 export default function Center() {
-    const userId = useParams().id as number; // 获取动态ID
+    const userId = useParams().id as unknown as number; // 获取动态ID
     const [user, setUser] = useState<User>({})
     const initUserData = async () => {
         const res = await getUserDetail(userId)
         setUser(res[0])
     }
     useEffect(() => {
-       initUserData();
+        initUserData();
     }, [])
     return (
         <div className="flex justify-center min-h-screen py-5">
@@ -44,9 +44,8 @@ export default function Center() {
                             <span className="text-gray-600">用户名</span>
                             <div className="flex items-center">
                                 <span className="font-medium text-gray-800 mr-2">{user.username}</span>
-                                <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
-                                    user.permission == '1' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'
-                                }`}>{user.permission == 0 ? "普通用户" : "管理员"}
+                                <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${user.permission == '1' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'
+                                    }`}>{user.permission == 0 ? "普通用户" : "管理员"}
                                 </span>
                             </div>
                         </div>

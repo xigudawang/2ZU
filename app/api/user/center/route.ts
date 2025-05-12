@@ -1,5 +1,5 @@
 import pool from "@/lib/sql/mysql";
-import {NextResponse} from "next/server";
+import { NextResponse } from "next/server";
 
 export const GET = async (request: Request) => {
     // 解析查询参数

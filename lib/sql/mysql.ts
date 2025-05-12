@@ -15,4 +15,6 @@ const poolOptions: PoolOptions = {
 };
 // 创建连接池
 const pool: Pool = mysql.createPool(poolOptions);
+console.log(pool);
+
 export default pool;

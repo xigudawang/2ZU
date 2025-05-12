@@ -1,10 +1,20 @@
--- 创建名为 task_system 的数据库，并指定字符集为 utf8mb4 和排序规则为 utf8mb4_0900_ai_ci
-CREATE DATABASE IF NOT EXISTS `task_system` CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+/*
+ Navicat Premium Data Transfer
 
--- 使用 task_system 数据库
-USE `task_system`;
+ Source Server         : TEST
+ Source Server Type    : MySQL
+ Source Server Version : 80033 (8.0.33)
+ Source Host           : localhost:3306
+ Source Schema         : task_system
 
--- 关闭外键检查
+ Target Server Type    : MySQL
+ Target Server Version : 80033 (8.0.33)
+ File Encoding         : 65001
+
+ Date: 12/05/2025 11:08:04
+*/
+
+SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
 -- ----------------------------
@@ -12,63 +22,49 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- ----------------------------
 DROP TABLE IF EXISTS `task`;
 CREATE TABLE `task`  (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `task_title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '任务标题',
-  `task_detail` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '任务详情',
-  `task_time` datetime NULL DEFAULT NULL COMMENT '任务截止时间',
-  `task_accept_id` int NULL DEFAULT NULL COMMENT '任务接收者id',
-  `task_send_id` int NULL DEFAULT NULL COMMENT '任务创建者id',
-  `task_state` int NULL DEFAULT NULL COMMENT '任务状态 0未完成 1已完成 2已过期',
-  `create_time` datetime NULL DEFAULT NULL COMMENT '任务创建时间',
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
+  `id` int NOT NULL AUTO_INCREMENT COMMENT '任务ID',
+  `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '任务标题',
+  `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '任务详情',
+  `deadline` datetime NOT NULL COMMENT '任务截止时间',
+  `sender_id` int NOT NULL COMMENT '发出者ID',
+  `receiver_id` int NULL DEFAULT NULL COMMENT '接受者ID',
+  `task_state` tinyint NULL DEFAULT 0 COMMENT '任务状态（0未完成，1已完成）',
+  `created_at` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '任务创建时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `sender_id`(`sender_id` ASC) USING BTREE,
+  INDEX `receiver_id`(`receiver_id` ASC) USING BTREE,
+  CONSTRAINT `task_ibfk_1` FOREIGN KEY (`sender_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT,
+  CONSTRAINT `task_ibfk_2` FOREIGN KEY (`receiver_id`) REFERENCES `user` (`id`) ON DELETE SET NULL ON UPDATE RESTRICT
+) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '任务表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of task
 -- ----------------------------
+INSERT INTO `task` VALUES (1, '测试任务一', '请在本周内完成这项任务', '2025-05-30 18:00:00', 1, 1, 0, '2025-05-12 10:55:26');
+INSERT INTO `task` VALUES (2, '测试任务二', '这是一个已经完成的任务', '2025-05-10 12:00:00', 1, 1, 1, '2025-05-12 10:55:26');
+INSERT INTO `task` VALUES (3, '测试任务二', '这是一个已经过期的任务', '2025-05-09 12:00:00', 1, 1, 0, '2025-05-12 10:55:26');
 
 -- ----------------------------
 -- Table structure for user
 -- ----------------------------
 DROP TABLE IF EXISTS `user`;
 CREATE TABLE `user`  (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `account` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '账号',
-  `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '密码',
-  `username` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '用户名',
-  `phone` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '手机号',
-  `mail` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '邮箱',
-  `permission` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '权限 0普通用户 1管理员',
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
+  `id` int NOT NULL AUTO_INCREMENT COMMENT '用户ID',
+  `email` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '邮箱',
+  `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '加密密码',
+  `phone` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '手机号',
+  `username` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '姓名',
+  `permission` tinyint NULL DEFAULT 0 COMMENT '权限等级（0普通用户，1管理员）',
+  `created_at` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updated_at` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `email`(`email` ASC) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of user
 -- ----------------------------
+-- 测试账号，邮箱admin@123.com，密码123456，下文已使用bcyrpt加密
+INSERT INTO `user` VALUES (1, 'admin@123.com', '$2b$10$6qbxLpdCZypXDHk/MO80juwytaQHtLSyAHZQoQbt.nc4nXUUT3oMq', '1777906652', '测试管理员01', 1, '2025-05-12 10:55:05', '2025-05-12 11:07:52');
 
--- ----------------------------
--- Table structure for employee
--- ----------------------------
-DROP TABLE IF EXISTS `employee`;
-CREATE TABLE `employee` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '员工姓名',
-  `employee_id` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '工号',
-  `department` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '部门',
-  `position` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '职位',
-  `phone` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '联系电话',
-  `email` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '邮箱',
-  `hire_date` date NOT NULL COMMENT '入职日期',
-  `status` tinyint NOT NULL DEFAULT '1' COMMENT '状态：1-在职，0-离职',
-  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uk_employee_id` (`employee_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='员工信息表';
-
--- ----------------------------
--- Records of employee
--- ----------------------------
-
--- 开启外键检查
 SET FOREIGN_KEY_CHECKS = 1;
