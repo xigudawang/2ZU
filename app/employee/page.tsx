@@ -1,20 +1,17 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Button, Table, Modal, Form, Input, DatePicker, Select, message } from 'antd';
+import { Button, Table, Modal, Form, Input, Select, message } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import dayjs from 'dayjs';
 
 interface Employee {
   id: number;
-  name: string;
-  employee_id: string;
-  department: string;
-  position: string;
-  phone: string;
   email: string;
-  hire_date: string;
-  status: number;
+  username: string;
+  phone: string;
+  permission: number;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export default function EmployeePage() {
@@ -26,46 +23,37 @@ export default function EmployeePage() {
 
   const columns: ColumnsType<Employee> = [
     {
-      title: '工号',
-      dataIndex: 'employee_id',
-      key: 'employee_id',
-    },
-    {
-      title: '姓名',
-      dataIndex: 'name',
-      key: 'name',
-    },
-    {
-      title: '部门',
-      dataIndex: 'department',
-      key: 'department',
-    },
-    {
-      title: '职位',
-      dataIndex: 'position',
-      key: 'position',
-    },
-    {
-      title: '联系电话',
-      dataIndex: 'phone',
-      key: 'phone',
-    },
-    {
       title: '邮箱',
       dataIndex: 'email',
       key: 'email',
     },
     {
-      title: '入职日期',
-      dataIndex: 'hire_date',
-      key: 'hire_date',
-      render: (date: string) => dayjs(date).format('YYYY-MM-DD'),
+      title: '用户名',
+      dataIndex: 'username',
+      key: 'username',
     },
     {
-      title: '状态',
-      dataIndex: 'status',
-      key: 'status',
-      render: (status: number) => (status === 1 ? '在职' : '离职'),
+      title: '手机号',
+      dataIndex: 'phone',
+      key: 'phone',
+    },
+    {
+      title: '权限',
+      dataIndex: 'permission',
+      key: 'permission',
+      render: (permission: number) => (permission === 1 ? '管理员' : '普通用户'),
+    },
+    {
+      title: '创建时间',
+      dataIndex: 'created_at',
+      key: 'created_at',
+      render: (date: string) => new Date(date).toLocaleString(),
+    },
+    {
+      title: '更新时间',
+      dataIndex: 'updated_at',
+      key: 'updated_at',
+      render: (date: string) => new Date(date).toLocaleString(),
     },
     {
       title: '操作',
@@ -87,10 +75,15 @@ export default function EmployeePage() {
     try {
       setLoading(true);
       const response = await fetch('/api/employee');
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       const data = await response.json();
-      setEmployees(data);
+      setEmployees(Array.isArray(data) ? data : []);
     } catch (error) {
+      console.error('获取员工列表失败:', error);
       message.error('获取员工列表失败');
+      setEmployees([]);
     } finally {
       setLoading(false);
     }
@@ -110,16 +103,19 @@ export default function EmployeePage() {
     setEditingId(record.id);
     form.setFieldsValue({
       ...record,
-      hire_date: dayjs(record.hire_date),
+      password: '', // 编辑时不显示密码
     });
     setModalVisible(true);
   };
 
   const handleDelete = async (id: number) => {
     try {
-      await fetch(`/api/employee/${id}`, {
+      const response = await fetch(`/api/employee/${id}`, {
         method: 'DELETE',
       });
+      if (!response.ok) {
+        throw new Error('删除失败');
+      }
       message.success('删除成功');
       fetchEmployees();
     } catch (error) {
@@ -133,16 +129,17 @@ export default function EmployeePage() {
       const method = editingId ? 'PUT' : 'POST';
       const url = editingId ? `/api/employee/${editingId}` : '/api/employee';
       
-      await fetch(url, {
+      const response = await fetch(url, {
         method,
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          ...values,
-          hire_date: values.hire_date.format('YYYY-MM-DD'),
-        }),
+        body: JSON.stringify(values),
       });
+
+      if (!response.ok) {
+        throw new Error(`${editingId ? '更新' : '添加'}失败`);
+      }
 
       message.success(`${editingId ? '更新' : '添加'}成功`);
       setModalVisible(false);
@@ -177,41 +174,6 @@ export default function EmployeePage() {
           layout="vertical"
         >
           <Form.Item
-            name="employee_id"
-            label="工号"
-            rules={[{ required: true, message: '请输入工号' }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            name="name"
-            label="姓名"
-            rules={[{ required: true, message: '请输入姓名' }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            name="department"
-            label="部门"
-            rules={[{ required: true, message: '请输入部门' }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            name="position"
-            label="职位"
-            rules={[{ required: true, message: '请输入职位' }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            name="phone"
-            label="联系电话"
-            rules={[{ required: true, message: '请输入联系电话' }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
             name="email"
             label="邮箱"
             rules={[
@@ -222,20 +184,42 @@ export default function EmployeePage() {
             <Input />
           </Form.Item>
           <Form.Item
-            name="hire_date"
-            label="入职日期"
-            rules={[{ required: true, message: '请选择入职日期' }]}
+            name="password"
+            label="密码"
+            rules={[
+              { required: !editingId, message: '请输入密码' },
+              { min: 6, message: '密码长度不能小于6个字符' }
+            ]}
           >
-            <DatePicker style={{ width: '100%' }} />
+            <Input.Password placeholder={editingId ? '不修改请留空' : '请输入密码'} />
           </Form.Item>
           <Form.Item
-            name="status"
-            label="状态"
-            rules={[{ required: true, message: '请选择状态' }]}
+            name="username"
+            label="用户名"
+            rules={[
+              { required: true, message: '请输入用户名' },
+              { min: 2, message: '用户名长度不能小于2个字符' }
+            ]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            name="phone"
+            label="手机号"
+            rules={[
+              { pattern: /^1[3-9]\d{9}$/, message: '请输入有效的手机号' }
+            ]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            name="permission"
+            label="权限"
+            rules={[{ required: true, message: '请选择权限' }]}
           >
             <Select>
-              <Select.Option value={1}>在职</Select.Option>
-              <Select.Option value={0}>离职</Select.Option>
+              <Select.Option value={1}>管理员</Select.Option>
+              <Select.Option value={0}>普通用户</Select.Option>
             </Select>
           </Form.Item>
         </Form>
