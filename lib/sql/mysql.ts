@@ -17,4 +17,15 @@ const poolOptions: PoolOptions = {
 const pool: Pool = mysql.createPool(poolOptions);
 console.log(pool);
 
+
+export const executeQuery = async <T>(query: string, values?: any[]): Promise<T[]> => {
+    try {
+        const [rows] = await pool.execute(query, values);
+        return rows as T[];
+    } catch (error) {
+        console.error('Database query error:', error);
+        throw error;
+    }
+};
+
 export default pool;
