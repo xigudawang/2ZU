@@ -63,6 +63,36 @@ const TaskStatisticsPage = () =>{
                         />
                     </Card>
                 </Col>
+                <Col span={6}>
+                    <Card>
+                        <Statistic
+                            title="已接受任务"
+                            value={stats.acceptedTasks}
+                            prefix={<CheckCircleOutlined />}
+                            valueStyle={{ color: '#1890ff' }}
+                        />
+                    </Card>
+                </Col>
+                <Col span={6}>
+                    <Card>
+                        <Statistic
+                            title="已完成任务"
+                            value={stats.completedTasks}
+                            prefix={<CheckCircleOutlined />}
+                            valueStyle={{ color: '#52c41a' }}
+                        />
+                    </Card>
+                </Col>
+                <Col span={6}>
+                    <Card>
+                        <Statistic
+                            title="未完成任务"
+                            value={stats.pendingTasks}
+                            prefix={<ClockCircleOutlined />}
+                            valueStyle={{ color: '#faad14' }}
+                        />
+                    </Card>
+                </Col>
             </Row>
         </>
     )}

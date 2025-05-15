@@ -11,9 +11,23 @@ export async function GET(request: NextRequest){
         const totalTasks = totalTasksResult.count;
 
 
+        // 统计已接受任务数（receiver_id不为null）
+        const acceptedTasksQuery = 'SELECT COUNT(*) as count FROM task WHERE receiver_id IS NOT NULL';
+        const [acceptedTasksResult] = await executeQuery<{ count: number }>(acceptedTasksQuery);
+        const acceptedTasks = acceptedTasksResult.count;
+
+        // 统计已完成和未完成任务数
+        const stateTasksQuery = 'SELECT task_state, COUNT(*) as count FROM task GROUP BY task_state';
+        const stateTasks = await executeQuery<{ task_state: TaskState; count: number }>(stateTasksQuery);
+
+        const completedTasks = stateTasks.find(t => t.task_state === TaskState.COMPLETED)?.count || 0;
+        const pendingTasks = stateTasks.find(t => t.task_state === TaskState.PENDING)?.count || 0;
 
         return NextResponse.json({
-            totalTasks
+            totalTasks,
+            acceptedTasks,
+            completedTasks,
+            pendingTasks,
         })
     }catch (error){
         console.error('Error fetching task statistics:', error);
