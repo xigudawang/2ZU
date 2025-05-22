@@ -40,7 +40,7 @@ CREATE TABLE `task`  (
 -- ----------------------------
 -- Records of task
 -- ----------------------------
-INSERT INTO `task` VALUES (1, '测试任务一', '请在本周内完成这项任务', '2025-05-30 18:00:00', 1, 1, 0, '2025-05-12 10:55:26');
+INSERT INTO `task` VALUES (1, '测试任务一', '这是一个未完成的任务', '2029-05-30 18:00:00', 1, 1, 0, '2025-05-12 10:55:26');
 INSERT INTO `task` VALUES (2, '测试任务二', '这是一个已经完成的任务', '2025-05-10 12:00:00', 1, 1, 1, '2025-05-12 10:55:26');
 INSERT INTO `task` VALUES (3, '测试任务二', '这是一个已经过期的任务', '2025-05-09 12:00:00', 1, 1, 0, '2025-05-12 10:55:26');
 
@@ -65,6 +65,6 @@ CREATE TABLE `user`  (
 -- Records of user
 -- ----------------------------
 -- 测试账号，邮箱admin@123.com，密码123456，下文已使用bcyrpt加密
-INSERT INTO `user` VALUES (1, 'admin@123.com', '$2b$10$6qbxLpdCZypXDHk/MO80juwytaQHtLSyAHZQoQbt.nc4nXUUT3oMq', '1777906652', '测试管理员01', 1, '2025-05-12 10:55:05', '2025-05-12 11:07:52');
+INSERT INTO `user` VALUES (1, 'admin@123.com', '$2b$10$6qbxLpdCZypXDHk/MO80juwytaQHtLSyAHZQoQbt.nc4nXUUT3oMq', '1999999999', '测试管理员01', 1, '2025-05-12 10:55:05', '2025-05-12 11:07:52');
 
 SET FOREIGN_KEY_CHECKS = 1;

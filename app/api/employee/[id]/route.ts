@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import pool from '@/lib/sql/mysql';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 
 // 更新员工信息
 export async function PUT(

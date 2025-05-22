@@ -54,7 +54,7 @@ export default function Center() {
                                 <span className="font-medium text-gray-800 mr-2">{user.username}</span>
                                 <span
                                     className={`px-2 py-0.5 rounded-full text-xs font-semibold ${user.permission == '1' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'
-                                    }`}>{user.permission == 0 ? "普通用户" : "管理员"}
+                                        }`}>{user.permission == 0 ? "普通用户" : "管理员"}
                                 </span>
                             </div>
                         </div>

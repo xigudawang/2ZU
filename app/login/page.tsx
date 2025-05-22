@@ -21,18 +21,17 @@ export default function Login() {
         }
 
         try {
-            // 发起登录请求
             const res = await axios.post('/api/auth/login', {
-                email: email,  // 传递邮箱
-                password: password // 传递密码
+                email,
+                password
+            }, {
+                withCredentials: true
             });
 
-            // 如果返回成功，保存 token 并跳转
-            if (res.data.token) {
-                localStorage.setItem("token", res.data.token);  // 存储 token
-                router.push('/dashboard');  // 跳转到 dashboard 页面
+            if (res.data.message === '登录成功') {
+                router.push('/dashboard'); // ✅ 正确跳转
             } else {
-                setErrorMessage(res.data.error);  // 显示错误信息
+                setErrorMessage(res.data.error || '登录失败');
             }
         } catch (error) {
             console.error(error);

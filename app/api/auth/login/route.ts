@@ -43,8 +43,8 @@ export async function POST(req: NextRequest) {
             { expiresIn: '2h' }
         );
 
-        return NextResponse.json({
-            token,
+        const response = NextResponse.json({
+            message: '登录成功',
             user: {
                 id: user.id,
                 email: user.email,
@@ -52,6 +52,21 @@ export async function POST(req: NextRequest) {
                 permission: user.permission
             }
         });
+
+        // 设置 JWT 到 Cookie（供中间件读取）
+        response.cookies.set({
+            name: 'token',
+            value: token,
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax', // 或 'none'
+            path: '/',
+            maxAge: 60 * 60 * 2,
+        });
+
+        return response;
+
+
 
     } catch (error) {
         console.error('登录处理出错:', error);
