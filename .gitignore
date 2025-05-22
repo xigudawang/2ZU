@@ -2,6 +2,7 @@
 node_modules/
 .next/
 .env
+.idea/
 *.log
 .DS_Store
 dist/
