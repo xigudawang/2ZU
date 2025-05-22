@@ -23,11 +23,22 @@ export async function GET(request: NextRequest){
         const completedTasks = stateTasks.find(t => t.task_state === TaskState.COMPLETED)?.count || 0;
         const pendingTasks = stateTasks.find(t => t.task_state === TaskState.PENDING)?.count || 0;
 
+        // 按用户ID统计任务分布
+        const distributionQuery = 'SELECT sender_id,COUNT(*) as count FROM task GROUP BY sender_id ORDER BY count DESC';
+
+        const distribution = await executeQuery<{sender_id:number;count:number}>(distributionQuery);
+
+        const taskDistribution = distribution.reduce((acc, item) => {
+            acc[item.sender_id] = item.count;
+            return acc;
+        }, {} as { [userId: number]: number });
+
         return NextResponse.json({
             totalTasks,
             acceptedTasks,
             completedTasks,
             pendingTasks,
+            taskDistribution,
         })
     }catch (error){
         console.error('Error fetching task statistics:', error);
