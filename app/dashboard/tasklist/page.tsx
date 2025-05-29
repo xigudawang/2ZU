@@ -1,6 +1,7 @@
 'use client'
 import {message, Table} from "antd";
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
+import TaskDispatchPage from "@/app/dashboard/taskdispatch/page";
 
 interface Task {
     id: string;
@@ -68,6 +69,9 @@ export default function page() {
             setLoading(false);
         }
     };
+    const handleButton = async ()=>{
+
+    }
 
     useEffect(() => {
         initTaskData();
@@ -76,13 +80,15 @@ export default function page() {
     return (
         <div className="p-7">
             <div className="mb-4">
-                <Table
-                    columns={columns}
-                    dataSource={tasks}
-                    rowKey="id"
-                    loading={loading}
-                />
+                <a target="_blank" rel="noopener noreferrer" href={`/dashboard/taskdispatch`}>新增任务</a>
             </div>
+            <Table
+                columns={columns}
+                dataSource={tasks}
+                rowKey="id"
+                loading={loading}
+            />
+
         </div>
     )
 }

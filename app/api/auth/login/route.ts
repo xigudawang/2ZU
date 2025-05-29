@@ -52,7 +52,6 @@ export async function POST(req: NextRequest) {
                 permission: user.permission
             }
         });
-
         // 设置 JWT 到 Cookie（供中间件读取）
         response.cookies.set({
             name: 'token',
@@ -63,6 +62,7 @@ export async function POST(req: NextRequest) {
             path: '/',
             maxAge: 60 * 60 * 2,
         });
+
 
         return response;
 

@@ -29,6 +29,8 @@ export default function Login() {
             });
 
             if (res.data.message === '登录成功') {
+                localStorage.setItem("username",res.data.user.username);
+                localStorage.setItem("id",res.data.user.id);
                 router.push('/dashboard'); // ✅ 正确跳转
             } else {
                 setErrorMessage(res.data.error || '登录失败');
